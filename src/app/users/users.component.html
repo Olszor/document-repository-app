@@ -1,0 +1,131 @@
+<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+<div class="container" id="main-container" *ngIf="showUsers; else elseUserView">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="main-box no-header clearfix">
+        <div class="main-box-body clearfix">
+          <div class="table-responsive">
+            <table class="table user-list">
+              <thead>
+              <tr>
+                <th><span>User</span></th>
+                <th><span>Roles</span></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let user of users">
+                <td>
+                  {{user.username}}
+                </td>
+                <td>
+                  <ul>
+                    <li *ngFor="let role of user.roles">
+                      {{role.name}}
+                    </li>
+                  </ul>
+                </td>
+                <td style="width: 20%;">
+                  <a (click)="openEditModal(editContent, user)" class="btn btn-primary tooltips" data-placement="top" data-original-title="Edit" *ngIf="showEditUser">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  <a (click)="openDeleteModal(deleteContent, user)" class="btn btn-secondary tooltips" data-placement="top" data-original-title="Delete" *ngIf="showDeleteUser">
+                    <i class="fa fa-ban"></i>
+                  </a>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <button mat-stroked-button style="width: 1272px; height: 50px" (click)="openAddModal(addContent);" *ngIf="showAddUser">Add user</button>
+            <div class="form-group">
+              <div
+                class="alert alert-danger"
+                role="alert"
+                *ngIf="isFailed"
+              >
+                <div class="container text-center">
+                  Editing user failed: {{ message }}
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-success" *ngIf="isSuccessful">
+              <div class="container text-center">
+                {{ message }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #elseUserView>
+  You have no permission to view users.
+</ng-template>
+
+<ng-template #editContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="editUser">Edit user</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #editForm="ngForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="username" ngModel="{{editUser?.username}}" name="username" class="form-control" id="username" placeholder="Username">
+        <label>Roles</label>
+        <div *ngFor="let role of roles">
+          <mat-checkbox [checked]="role.checked!" (change)="role.checked=$event.checked">{{role.name}}</mat-checkbox>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onUpdateUser(editForm.value);">Save</button>
+  </div>
+</ng-template>
+
+<ng-template #addContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="addUser">Add user</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #addForm="ngForm">
+      <div class="form-group">
+        <label for="addUsername">Username</label>
+        <input type="username" ngModel="" name="username" class="form-control" id="addUsername" placeholder="Username">
+        <label for="password">Password</label>
+        <input type="password" ngModel="" name="password" class="form-control" id="password" placeholder="Password">
+        <label>Roles</label>
+        <div *ngFor="let role of roles">
+          <mat-checkbox (change)="role.checked=$event.checked">{{role.name}}</mat-checkbox>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onAddUser(addForm.value);">Add</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="deleteUser">Delete user</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to delete user {{deleteUser?.username}}?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onDeleteUser(deleteUser.id);">Yes</button>
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close();">No</button>
+  </div>
+</ng-template>

@@ -1,0 +1,244 @@
+<link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+<div class="container" id="main-container" *ngIf="showDocuments; else elseDocumentView">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="main-box no-header clearfix">
+        <div class="main-box-body clearfix">
+          <div class="table-responsive">
+            <table class="table user-list">
+              <thead>
+              <tr>
+                <th><span>Name</span></th>
+                <th><span>Latest Version</span></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let document of documents">
+                <td>
+                  {{document.name}}
+                </td>
+                <td>
+                  {{document.versions[document.versions.length-1].version}}
+                </td>
+                <td style="width: 20%;">
+                  <a (click)="openVersionModal(versionContent, document)" class="btn btn-primary tooltips" data-placement="top" data-original-title="View" *ngIf="showDocuments">
+                    <i class="fa fa-eye"></i>
+                  </a>
+                  <a (click)="openEditModal(editContent, document)" class="btn btn-secondary tooltips" data-placement="top" data-original-title="Edit" *ngIf="showEditDocument">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  <a (click)="openDeleteDocumentModal(deleteDocumentContent, document)" class="btn btn-primary tooltips" data-placement="top" data-original-title="Delete" *ngIf="showDeleteDocument">
+                    <i class="fa fa-ban"></i>
+                  </a>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <button mat-stroked-button style="width: 1272px; height: 50px" (click)="openAddDocumentModal(addContent);" *ngIf="showAddDocument">Add document</button>
+            <div class="form-group">
+              <div
+                class="alert alert-danger"
+                role="alert"
+                *ngIf="isFailed"
+              >
+                <div class="container text-center">
+                  {{ message }}
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-success" *ngIf="isSuccessful">
+              <div class="container text-center">
+                {{ message }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #elseDocumentView>
+  You have no permission to view documents.
+</ng-template>
+
+<ng-template #editContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="editDocument">Edit document</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #editForm="ngForm">
+      <div class="form-group">
+        <label for="editDocumentName">Name</label>
+        <input type="text" ngModel="{{editDocument.name}}" name="documentName" class="form-control" id="editDocumentName" placeholder="Name">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onEditDocument(editForm.value);">Edit</button>
+  </div>
+</ng-template>
+
+<ng-template #addContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="addDocument">Add document</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #addForm="ngForm">
+      <div class="form-group">
+        <label for="addDocumentName">Name</label>
+        <input type="text" ngModel="" name="documentName" class="form-control" id="addDocumentName" placeholder="Name">
+        <label for="version">Version</label>
+        <input type="text" ngModel="" name="version" class="form-control" id="version" placeholder="Version">
+        <label for="dateOfCreation">Date of creation</label>
+        <input type="date" ngModel="" name="dateOfCreation" class="form-control" id="dateOfCreation" placeholder="Date of creation">
+        <label for="file">File</label>
+        <input type="file" (change)="fileChange($event)" name="file" class="form-control" id="file">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onAddDocument(addForm.value);">Add</button>
+  </div>
+</ng-template>
+
+<ng-template #versionContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="viewDocument">{{viewDocument.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <table class="table user-list">
+      <thead>
+      <tr>
+        <th><span>Version</span></th>
+        <th><span>Date of creation</span></th>
+        <th><span>Date of submission</span></th>
+        <th><span>File name</span></th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let version of viewDocument.versions">
+        <td>
+          {{version.version}}
+        </td>
+        <td>
+          {{version.dateOfCreation}}
+        </td>
+        <td>
+          {{version.dateOfSubmission}}
+        </td>
+        <td>
+          {{version.fileName}}
+        </td>
+        <td style="width: 20%;">
+          <a (click)="openEditVersionModal(editVersionContent, version)" class="btn btn-primary tooltips" data-placement="top" data-original-title="Edit" *ngIf="showEditDocument">
+            <i class="fa fa-pencil"></i>
+          </a>
+          <a (click)="openDeleteVersionModal(deleteVersionContent, version)" class="btn btn-secondary tooltips" data-placement="top" data-original-title="Delete" *ngIf="showDeleteDocument">
+            <i class="fa fa-ban"></i>
+          </a>
+          <a (click)="onDownloadFile(version.fileName)" class="btn btn-primary tooltips" data-placement="top" data-original-title="Edit" *ngIf="showDocuments">
+            <i class="fa fa-download"></i>
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <button mat-stroked-button style="width: 465px; height: 50px" (click)="openAddVersionModal(addVersionContent, viewDocument);" *ngIf="showAddDocument">Add version</button>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close()">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #addVersionContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="addVersion">Add version to document {{addDocument.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #addVersionForm="ngForm">
+      <div class="form-group">
+        <label for="AddVersionVersion">Version</label>
+        <input type="text" ngModel="" name="version" class="form-control" id="AddVersionVersion" placeholder="Version">
+        <label for="addVersionDateOfCreation">Date of creation</label>
+        <input type="date" ngModel="" name="dateOfCreation" class="form-control" id="addVersionDateOfCreation" placeholder="Date of creation">
+        <label for="addFile">File</label>
+        <input type="file" (change)="fileChange($event)" name="file" class="form-control" id="addFile">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onAddVersion(addVersionForm.value);">Add</button>
+  </div>
+</ng-template>
+
+<ng-template #editVersionContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="editVersion">Edit version</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form #editVersionForm="ngForm">
+      <div class="form-group">
+        <label for="editVersionVersion">Version</label>
+        <input type="text" ngModel="{{editVersion.version}}" name="version" class="form-control" id="editVersionVersion" placeholder="Version">
+        <label for="editVersionDateOfCreation">Date of creation</label>
+        <input type="date" ngModel="{{editVersion.dateOfCreation}}" name="dateOfCreation" class="form-control" id="editVersionDateOfCreation" placeholder="Date of creation">
+        <label for="EditFile">File</label>
+        <input type="file" (change)="fileChange($event)" name="file" class="form-control" id="EditFile">
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onEditVersion(editVersionForm.value);">Edit</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteDocumentContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="deleteDocument">Delete document</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to delete document {{deleteDocument?.name}}?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onDeleteDocument(deleteDocument.id);">Yes</button>
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close();">No</button>
+  </div>
+</ng-template>
+
+<ng-template #deleteVersionContent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="deleteVersion">Delete version</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to delete document version {{deleteVersion?.version}}?</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close(); onDeleteVersion(deleteVersion.id);">Yes</button>
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close();">No</button>
+  </div>
+</ng-template>
+
+
